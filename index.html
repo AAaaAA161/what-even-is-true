@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What even is real.</title>
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ── PHOTO AREA ── */
+.photo-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1c1c1c;
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-area img {
+  max-width: 100%;
+  max-height: 100vh;
+  object-fit: contain;
+  display: block;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 400px;
+  min-width: 400px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e4e6eb;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.fb-logo svg { display: block; }
+
+.top-bar-right {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050505;
+  font-size: 15px;
+}
+
+/* ── POST HEADER ── */
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px 6px;
+  gap: 10px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.post-meta { flex: 1; }
+
+.post-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #050505;
+  line-height: 1.2;
+}
+
+.post-date {
+  font-size: 13px;
+  color: #65676b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1px;
+}
+
+.more-btn {
+  background: none;
+  border: none;
+  color: #65676b;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  padding: 2px 6px;
+  letter-spacing: 1px;
+}
+
+/* ── CAPTION ── */
+.caption {
+  padding: 4px 16px 14px;
+  font-size: 15px;
+  color: #050505;
+  line-height: 1.5;
+}
+
+/* ── REACTIONS BAR ── */
+.reactions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 1px solid #e4e6eb;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.reactions-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #65676b;
+}
+
+.r-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border: 2px solid #fff;
+}
+.r-like  { background: #1877f2; color: #fff; }
+.r-heart { background: #f33e58; color: #fff; font-size: 9px; }
+
+.reactions-right { font-size: 14px; color: #65676b; }
+
+/* ── ACTION BUTTONS ── */
+.action-row {
+  display: flex;
+  padding: 2px 8px;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.action-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #65676b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.action-btn:hover { background: #f0f2f5; }
+
+/* ── COMMENTS SECTION ── */
+.comments-section {
+  padding: 10px 16px 20px;
+  flex: 1;
+}
+
+.sort-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #65676b;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── COMMENT ── */
+.comment {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.c-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.c-body { flex: 1; min-width: 0; }
+
+.c-bubble {
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 8px 12px;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.c-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #050505;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.c-text {
+  font-size: 14px;
+  color: #050505;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.c-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.c-time {
+  font-size: 12px;
+  color: #65676b;
+  font-weight: 700;
+}
+
+.c-like-btn {
+  font-size: 12px;
+  color: #65676b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.c-likes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  font-size: 13px;
+  color: #65676b;
+}
+
+.c-like-icon {
+  width: 17px;
+  height: 17px;
+  background: #1877f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #fff;
+}
+
+/* ── MORE COMMENTS ── */
+.more-comments {
+  font-size: 14px;
+  font-weight: 700;
+  color: #65676b;
+  cursor: pointer;
+  padding: 10px 0 4px;
+}
+
+/* ── COMMENT INPUT ── */
+.comment-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid #e4e6eb;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+}
+
+.input-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.input-field {
+  flex: 1;
+  background: #f0f2f5;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #65676b;
+  outline: none;
+  cursor: default;
+}
+
+/* ── GLITCH ANIMATIONS ── */
+
+/* Wrapper hides the glitching text cleanly */
+.gt-wrap {
+  display: inline;
+  position: relative;
+}
+
+@keyframes g-out {
+  0%   { opacity: 1;   transform: none;                        clip-path: none;            filter: none; }
+  8%   { opacity: 1;   transform: translateX(-6px);            clip-path: inset(0 0 0 0);  filter: brightness(2); }
+  9%   { opacity: 0;   transform: translateX(8px)  scaleY(1.04); clip-path: inset(30% 0 40% 0); filter: none; }
+  10%  { opacity: 1;   transform: translateX(-4px);            clip-path: inset(60% 0 10% 0); color: #ff0030; }
+  18%  { opacity: 0;   transform: translateX(5px);             clip-path: inset(10% 0 80% 0); }
+  19%  { opacity: 1;   transform: none;                        clip-path: none;            color: #0030ff; }
+  27%  { opacity: 0;   transform: translateX(-8px) scaleX(1.02); clip-path: inset(45% 0 30% 0); filter: brightness(3); }
+  28%  { opacity: 1;   transform: none;                        clip-path: none;            filter: none; color: inherit; }
+  60%  { opacity: 1; }
+  70%  { opacity: 0; }
+  100% { opacity: 0;   transform: none;                        clip-path: none; }
+}
+
+@keyframes g-in {
+  0%   { opacity: 0;   transform: none;                        clip-path: none; }
+  5%   { opacity: 0;   transform: translateX(7px);             clip-path: inset(70% 0 0 0);  color: #ff0030; filter: brightness(2); }
+  6%   { opacity: 1;   transform: translateX(-5px);            clip-path: inset(0 0 70% 0);  filter: none; }
+  14%  { opacity: 0;   transform: translateX(4px)  scaleY(1.03); clip-path: inset(25% 0 55% 0); color: #0030ff; }
+  15%  { opacity: 1;   transform: none;                        clip-path: none;  color: inherit; }
+  22%  { opacity: 0;   transform: translateX(-6px);            clip-path: inset(50% 0 20% 0); filter: brightness(2.5); }
+  23%  { opacity: 1;   transform: none;                        clip-path: none;  filter: none; }
+  100% { opacity: 1;   transform: none;                        clip-path: none;  color: inherit; }
+}
+
+/* idle flicker during Wunsch hold — abrupt, not smooth */
+@keyframes idle-flicker {
+  0%, 88%, 100% { transform: none; filter: none; opacity: 1; }
+  89%  { transform: translateX(4px); filter: brightness(2); opacity: 0; }
+  90%  { transform: translateX(-3px); filter: none; opacity: 1; color: #ff0030; }
+  91%  { transform: none; opacity: 0; }
+  92%  { transform: translateX(2px); opacity: 1; color: inherit; }
+  93%  { transform: none; }
+}
+
+.glitch-text {
+  display: inline;
+}
+
+.glitch-text.g-out {
+  animation: g-out 0.32s steps(1) forwards;
+}
+
+.glitch-text.g-in {
+  animation: g-in 0.26s steps(1) forwards;
+}
+
+.glitch-text.idle {
+  animation: idle-flicker 6s steps(1) infinite;
+  animation-delay: var(--idle-delay, 0s);
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="glitch-canvas" style="
+  position:fixed; inset:0; width:100%; height:100%;
+  pointer-events:none; z-index:9999; opacity:0;
+"></canvas>
+
+<!-- ═══════════════════════════════════ PHOTO AREA ═══════════════════════════════════ -->
+<div class="photo-area">
+  <button class="close-btn">✕</button>
+  <img src="506445355_10059603907416142_3771467240129325286_n.jpg" alt="">
+</div>
+
+<!-- ═══════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
+<div class="sidebar">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="fb-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="7" fill="#1877F2"/>
+        <path d="M20 18.5h2.7l.5-3.1H20V13.7c0-.9.4-1.7 1.7-1.7H23.3V10.2S22 10 20.7 10c-2.6 0-4.3 1.6-4.3 4.4v2H14V19.5h2.4V29H20V18.5z" fill="white"/>
+      </svg>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" title="Teilen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </button>
+      <button class="icon-btn" title="Mehr">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Post header -->
+  <div class="post-header">
+    <div class="avatar" style="background:#2c3e50;">🐕‍🦺</div>
+    <div class="post-meta">
+      <div class="post-name">Günther A. Nowak</div>
+      <div class="post-date">
+        21. Oktober 2013
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#65676b"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+      </div>
+    </div>
+    <button class="more-btn">···</button>
+  </div>
+
+  <!-- Caption -->
+  <div class="caption" id="caption-block"><span
+      class="glitch-text"
+      id="gt-caption"
+      data-original="My daughter &lt;strong&gt;Melissa&lt;/strong&gt;, my son &lt;strong&gt;Damian&lt;/strong&gt; and myself. ❤️"
+      data-wunsch="My daughter &lt;strong&gt;Melissa&lt;/strong&gt;, my son &lt;strong&gt;Damian&lt;/strong&gt; and myself. ❤️"
+      style="--idle-delay:0.3s">My daughter <strong>Melissa</strong>, my son <strong>Damian</strong> and myself. ❤️</span></div>
+
+  <!-- Reactions -->
+  <div class="reactions-bar">
+    <div class="reactions-left">
+      <span class="r-icon r-like">👍</span>
+      <span class="r-icon r-heart" style="margin-left:-6px;">♥</span>
+      <span>47</span>
+    </div>
+    <div class="reactions-right">13 Kommentare</div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="action-row">
+    <button class="action-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+      Gefällt mir
+    </button>
+    <button class="action-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Kommentieren
+    </button>
+    <button class="action-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Teilen
+    </button>
+  </div>
+
+  <!-- Comments -->
+  <div class="comments-section">
+
+    <div class="sort-label">Relevanteste zuerst &nbsp;▾</div>
+
+    <!-- C1: Max Müller -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#7a3b1e;">🐕</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Max Müller</span>
+          <span class="c-text glitch-text" id="gt-c1"
+            data-original="what a great photo and a beautiful dobi 😉😉"
+            data-wunsch="[WUNSCH 1]"
+            style="--idle-delay:0.8s">what a great photo and a beautiful dobi 😉😉</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C2: Sophie Wagner -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#5a6a7a;">🐩</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Sophie Wagner</span>
+          <span class="c-text glitch-text" id="gt-c2"
+            data-original="Günther et ses deux grands amours!!! 🙂❤️"
+            data-wunsch="[WUNSCH 2]"
+            style="--idle-delay:1.6s">Günther et ses deux grands amours!!! 🙂❤️</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C3: Anna Berger -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#2d2d2d;">🐕</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Anna Berger</span>
+          <span class="c-text glitch-text" id="gt-c3"
+            data-original="Fantastic family Gunter ! ❤️"
+            data-wunsch="[WUNSCH 3]"
+            style="--idle-delay:2.4s">Fantastic family Gunter ! ❤️</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 2</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C4: Thomas Klein -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#5c3a8a;">🦮</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Thomas Klein</span>
+          <span class="c-text glitch-text" id="gt-c4"
+            data-original="Merry Christmas Gunther"
+            data-wunsch="[WUNSCH 4]"
+            style="--idle-delay:0.5s">Merry Christmas Gunther</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C5: Günther A. Nowak (reply) -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#2c3e50;">🐕‍🦺</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Günther A. Nowak</span>
+          <span class="c-text glitch-text" id="gt-c5"
+            data-original="Merry Christmas <strong>Thomas</strong>"
+            data-wunsch="[WUNSCH 5]"
+            style="--idle-delay:3.1s">Merry Christmas <strong>Thomas</strong></span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C6: Maria Huber -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#2e7d4f;">🐕</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Maria Huber</span>
+          <span class="c-text glitch-text" id="gt-c6"
+            data-original="MERRY CHRISTMAS !!!!!"
+            data-wunsch="[WUNSCH 6]"
+            style="--idle-delay:1.2s">MERRY CHRISTMAS !!!!!</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C7: Lisa Schneider -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#b5651d;">🐕‍🦺</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Lisa Schneider</span>
+          <span class="c-text glitch-text" id="gt-c7"
+            data-original="May You Be Blessed this CHRISTmas with love beyond measure &amp; Joy Unspeakable Gunther, Melissa &amp; Damian!! ❤️"
+            data-wunsch="[WUNSCH 7]"
+            style="--idle-delay:2.0s">May You Be Blessed this CHRISTmas with love beyond measure &amp; Joy Unspeakable Gunther, Melissa &amp; Damian!! ❤️</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C8: Eva Fischer -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#4682b4;">🐩</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Eva Fischer</span>
+          <span class="c-text glitch-text" id="gt-c8"
+            data-original="Beautiful."
+            data-wunsch="[WUNSCH 8]"
+            style="--idle-delay:3.7s">Beautiful.</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- C9: Kurt Bauer -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#1a1a1a;">🐕</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Kurt Bauer</span>
+          <span class="c-text glitch-text" id="gt-c9"
+            data-original="A beautiful family picture. Merry Christmas and may God Bless you with a wonderful 2014."
+            data-wunsch="[WUNSCH 9]"
+            style="--idle-delay:0.9s">A beautiful family picture. Merry Christmas and may God Bless you with a wonderful 2014.</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C10: Peter Maier -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#6b8e6b;">🦮</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Peter Maier</span>
+          <span class="c-text glitch-text" id="gt-c10"
+            data-original="Beautiful family! Merry Christmas to all of you!... <strong>Mehr anzeigen</strong>"
+            data-wunsch="[WUNSCH 10]"
+            style="--idle-delay:2.8s">Beautiful family! Merry Christmas to all of you!... <strong>Mehr anzeigen</strong></span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C11: Sandra Wolf -->
+    <div class="comment">
+      <div class="c-avatar" style="background:#8b5e9a;">🐕</div>
+      <div class="c-body">
+        <div class="c-bubble">
+          <span class="c-name">Sandra Wolf</span>
+          <span class="c-text glitch-text" id="gt-c11"
+            data-original="Lovely, you are so handsome and your daughter is gorgeous. Blessing all of you for 2014."
+            data-wunsch="[WUNSCH 11]"
+            style="--idle-delay:1.5s">Lovely, you are so handsome and your daughter is gorgeous. Blessing all of you for 2014.</span>
+        </div>
+        <div class="c-meta">
+          <span class="c-time">12 Jahre</span>
+          <span class="c-like-btn">Gefällt mir</span>
+          <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="more-comments">Weitere Kommentare ansehen &nbsp;›</div>
+
+  </div><!-- /comments-section -->
+
+  <!-- Comment input -->
+  <div class="comment-input-row">
+    <div class="input-avatar">🐕‍🦺</div>
+    <div class="input-field">Kommentieren…</div>
+  </div>
+
+</div><!-- /sidebar -->
+
+<!-- ═══════════════════════════════════ SCRIPT ════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── TIMING CONFIG ───────────────────────────────────────────────────────────
+const STAGGER_MS  = 550;   // delay between each element's transition
+const GLITCH_MS   = 280;   // duration of one glitch-out or glitch-in pass
+const WUNSCH_HOLD = 10000; // ms to stay in Wunsch state
+const ORIG_HOLD   = 10000; // ms to stay in Original state
+
+// ─── PIXEL ARTIFACT CANVAS ───────────────────────────────────────────────────
+const canvas = document.getElementById('glitch-canvas');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawPixelNoise(intensity = 1) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const count = Math.floor(60 * intensity);
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const w = Math.random() * 40 + 2;
+    const h = Math.floor(Math.random() * 4 + 1); // flat horizontal bars
+    const r = Math.random();
+    // mostly white/grey artifacts, occasional color bleed
+    if (r < 0.6) {
+      const v = Math.floor(Math.random() * 255);
+      ctx.fillStyle = `rgb(${v},${v},${v})`;
+    } else if (r < 0.8) {
+      ctx.fillStyle = `rgba(255,0,40,${Math.random() * 0.9 + 0.1})`;
+    } else {
+      ctx.fillStyle = `rgba(0,40,255,${Math.random() * 0.9 + 0.1})`;
+    }
+    ctx.fillRect(x, y, w, h);
+  }
+  // one or two full-width scanline tears
+  if (Math.random() > 0.4) {
+    const y = Math.random() * canvas.height;
+    ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.6 + 0.1})`;
+    ctx.fillRect(0, y, canvas.width, Math.random() * 3 + 1);
+  }
+}
+
+let pixelLoopId = null;
+
+function startPixelNoise(intensity = 1) {
+  canvas.style.opacity = '1';
+  function frame() {
+    drawPixelNoise(intensity);
+    pixelLoopId = requestAnimationFrame(frame);
+  }
+  pixelLoopId = requestAnimationFrame(frame);
+}
+
+function stopPixelNoise() {
+  if (pixelLoopId) { cancelAnimationFrame(pixelLoopId); pixelLoopId = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.style.opacity = '0';
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function glitchSwap(elem, newHTML) {
+  elem.classList.remove('g-in', 'idle');
+  elem.classList.add('g-out');
+  await sleep(GLITCH_MS);
+  elem.innerHTML = newHTML;
+  elem.classList.remove('g-out');
+  elem.classList.add('g-in');
+  await sleep(GLITCH_MS);
+  elem.classList.remove('g-in');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function transitionAll(ids, toWunsch) {
+  const order = shuffle(ids);
+  const totalMs = (order.length - 1) * STAGGER_MS + GLITCH_MS * 2;
+
+  startPixelNoise(1);
+  const promises = order.map((id, i) =>
+    sleep(i * STAGGER_MS).then(() => {
+      const e = document.getElementById(id);
+      return glitchSwap(e, toWunsch ? e.dataset.wunsch : e.dataset.original);
+    })
+  );
+  await Promise.all(promises);
+  stopPixelNoise();
+}
+
+function setIdle(ids, on) {
+  ids.forEach(id => {
+    document.getElementById(id).classList.toggle('idle', on);
+  });
+}
+
+// ─── INIT: load texte.json, wire up data attributes and initial content ───────
+async function init() {
+  const data = await fetch('texte.json').then(r => r.json());
+
+  // Caption
+  const capEl = document.getElementById('gt-caption');
+  capEl.dataset.original = data.caption.original;
+  capEl.dataset.wunsch   = data.caption.wunsch;
+  capEl.innerHTML        = data.caption.original;
+
+  // Comments
+  data.comments.forEach(c => {
+    const e = document.getElementById(c.id);
+    if (!e) return;
+    e.dataset.original = c.original;
+    e.dataset.wunsch   = c.wunsch;
+    e.innerHTML        = c.original;
+  });
+
+  const ids = ['gt-caption', ...data.comments.map(c => c.id)];
+
+  // ─── MAIN LOOP ──────────────────────────────────────────────────────────────
+  while (true) {
+    setIdle(ids, true);
+    const origBurst = setInterval(async () => {
+      startPixelNoise(0.3);
+      await sleep(80);
+      stopPixelNoise();
+    }, 2200 + Math.random() * 2000);
+    await sleep(ORIG_HOLD);
+    clearInterval(origBurst);
+    setIdle(ids, false);
+
+    await transitionAll(ids, true);
+    setIdle(ids, true);
+    // occasional pixel bursts during Wunsch hold
+    const burstInterval = setInterval(async () => {
+      startPixelNoise(0.3);
+      await sleep(80);
+      stopPixelNoise();
+    }, 2200 + Math.random() * 2000);
+    await sleep(WUNSCH_HOLD);
+    clearInterval(burstInterval);
+    setIdle(ids, false);
+    await transitionAll(ids, false);
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
