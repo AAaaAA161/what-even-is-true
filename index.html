@@ -782,7 +782,31 @@ function drawClean() {
   bctx.drawImage(photo, 0, 0, buf.width, buf.height);
 }
 
-function moshFrame(k) {
+// ─── GHOST: fragments of a second photo leak into the corruption ─────────────
+// Only during transitions. Blocks are mapped into GHOST_RECT (photo pixels),
+// the dog's place on the chair (the "son" in the original caption),
+// face roughly over the dog's head.
+const ghost = new Image();
+ghost.src = 'ghost.jpg';
+const GHOST_RECT  = { x: 1440, y: 850, w: 320, h: 427 };
+const GHOST_SHARE = 0.3;   // share of corruption ops that pull from the ghost
+
+function ghostBlock(W, H, B) {
+  if (!ghost.complete || !ghost.naturalWidth) return;
+  const s  = W / photo.naturalWidth;
+  const tx = GHOST_RECT.x * s, ty = GHOST_RECT.y * s;
+  const tw = GHOST_RECT.w * s, th = GHOST_RECT.h * s;
+  // block-aligned position inside the target rect
+  const x = Math.floor(rand(tx, tx + tw) / B) * B;
+  const y = Math.floor(rand(ty, ty + th) / B) * B;
+  const w = B * randi(1, 4), h = B * randi(1, 3);
+  const gx = ghost.naturalWidth / tw, gy = ghost.naturalHeight / th;
+  bctx.globalAlpha = rand(0.55, 1);
+  bctx.drawImage(ghost, (x - tx) * gx, (y - ty) * gy, w * gx, h * gy, x, y, w, h);
+  bctx.globalAlpha = 1;
+}
+
+function moshFrame(k, withGhost = false) {
   const W = buf.width, H = buf.height;
   const B = Math.max(8, Math.round(W / 64));          // macroblock size
   const sx = photo.naturalWidth / W, sy = photo.naturalHeight / H;
@@ -796,7 +820,9 @@ function moshFrame(k) {
     const x = bx(), y = by();
     const w = B * randi(1, 6), h = B * randi(1, 4);
 
-    if (t < 0.40) {
+    if (withGhost && Math.random() < GHOST_SHARE) {
+      ghostBlock(W, H, B);
+    } else if (t < 0.40) {
       // smear: drag a block downwards/sideways (classic P-frame bloom)
       const dx = B * randi(-1, 2), dy = B * randi(0, 2);
       bctx.drawImage(buf, x, y, w, h, x + dx, y + dy, w, h);
@@ -857,16 +883,17 @@ function renderMosh(k) {
   }
 }
 
-function startMosh(k = 1) {
+function startMosh(k = 1, withGhost = false) {
   stopMosh();
   if (!photo.complete || !photo.naturalWidth) return;
   placeMosh();
+  if (!mosh.width || !mosh.height) return;   // photo not laid out (yet)
   drawClean();
   renderMosh(k);
   mosh.style.opacity = '1';
   let last = 0;
   const frame = now => {
-    if (now - last > 40) { moshFrame(k); renderMosh(k); last = now; }  // ~25 fps: choppier = more digital
+    if (now - last > 40) { moshFrame(k, withGhost); renderMosh(k); last = now; }  // ~25 fps: choppier = more digital
     moshId = requestAnimationFrame(frame);
   };
   moshId = requestAnimationFrame(frame);
@@ -948,7 +975,7 @@ async function transitionAll(texts, toWunsch) {
   const order = [...shuffle(texts.filter(t => t.id !== 'gt-caption')),
                  texts.find(t => t.id === 'gt-caption')];
 
-  startMosh(1);
+  startMosh(1, true);
   await Promise.all(order.map((t, i) =>
     sleep(i * STAGGER_MS).then(() =>
       glitchSwap(document.getElementById(t.id), toWunsch ? t.wunsch : t.original))
