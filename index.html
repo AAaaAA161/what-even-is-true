@@ -787,23 +787,49 @@ function drawClean() {
 // the dog's place on the chair (the "son" in the original caption),
 // face roughly over the dog's head.
 const ghost = new Image();
-ghost.src = 'ghost.jpg';
-const GHOST_RECT  = { x: 1440, y: 850, w: 320, h: 427 };
-const GHOST_SHARE = 0.3;   // share of corruption ops that pull from the ghost
+ghost.src = 'ghost.png';   // cut out, transparent background
+// bottom edge = photo bottom (1536), head top (~6% into ghost.png) = dog's head top (~880)
+const GHOST_RECT  = { x: 1400, y: 839, w: 522, h: 697 };
+const GHOST_SHARE = 0.45;  // share of corruption ops that pull from the ghost
+const GHOST_FACE  = { x: 0.26, y: 0.06, w: 0.50, h: 0.60 }; // face area in ghost.png (fractions)
+const GHOST_FACE_BIAS = 0.7;  // share of ghost blocks aimed at the face
+let ghostHold = 0;            // frames left of a full, uncorrupted face
+
+function ghostTarget(W) {
+  const s = W / photo.naturalWidth;
+  return { tx: GHOST_RECT.x * s, ty: GHOST_RECT.y * s,
+           tw: GHOST_RECT.w * s, th: GHOST_RECT.h * s };
+}
 
 function ghostBlock(W, H, B) {
   if (!ghost.complete || !ghost.naturalWidth) return;
-  const s  = W / photo.naturalWidth;
-  const tx = GHOST_RECT.x * s, ty = GHOST_RECT.y * s;
-  const tw = GHOST_RECT.w * s, th = GHOST_RECT.h * s;
-  // block-aligned position inside the target rect
-  const x = Math.floor(rand(tx, tx + tw) / B) * B;
-  const y = Math.floor(rand(ty, ty + th) / B) * B;
-  const w = B * randi(1, 4), h = B * randi(1, 3);
+  const { tx, ty, tw, th } = ghostTarget(W);
+  let x, y, w, h;
+  if (Math.random() < GHOST_FACE_BIAS) {
+    // face: bigger, more coherent blocks so features stay readable
+    const fx = tx + GHOST_FACE.x * tw, fy = ty + GHOST_FACE.y * th;
+    const fw = GHOST_FACE.w * tw,      fh = GHOST_FACE.h * th;
+    x = Math.floor(rand(fx, fx + fw) / B) * B;
+    y = Math.floor(rand(fy, fy + fh) / B) * B;
+    w = B * randi(2, 6); h = B * randi(2, 5);
+  } else {
+    x = Math.floor(rand(tx, tx + tw) / B) * B;
+    y = Math.floor(rand(ty, ty + th) / B) * B;
+    w = B * randi(1, 4); h = B * randi(1, 3);
+  }
   const gx = ghost.naturalWidth / tw, gy = ghost.naturalHeight / th;
-  bctx.globalAlpha = rand(0.55, 1);
+  bctx.globalAlpha = rand(0.8, 1);
   bctx.drawImage(ghost, (x - tx) * gx, (y - ty) * gy, w * gx, h * gy, x, y, w, h);
   bctx.globalAlpha = 1;
+}
+
+// Whole figure for a few frames; the corruption then eats it away again.
+function ghostFull(W) {
+  if (!ghost.complete || !ghost.naturalWidth) return;
+  const { tx, ty, tw, th } = ghostTarget(W);
+  bctx.globalCompositeOperation = 'screen';     // light, see-through: dog and chair show through
+  bctx.drawImage(ghost, tx, ty, tw, th);
+  bctx.globalCompositeOperation = 'source-over';
 }
 
 function moshFrame(k, withGhost = false) {
@@ -813,6 +839,7 @@ function moshFrame(k, withGhost = false) {
   const bx = () => randi(0, W / B) * B, by = () => randi(0, H / B) * B;
 
   if (Math.random() < 0.05 * k) drawClean();           // occasional snap back
+  if (withGhost && ghostHold > 0) { ghostFull(W); ghostHold--; }
 
   const n = Math.round(rand(1, 5) * k);
   for (let i = 0; i < n; i++) {
@@ -977,8 +1004,10 @@ async function transitionAll(texts, toWunsch) {
 
   startMosh(1, true);
   await Promise.all(order.map((t, i) =>
-    sleep(i * STAGGER_MS).then(() =>
-      glitchSwap(document.getElementById(t.id), toWunsch ? t.wunsch : t.original))
+    sleep(i * STAGGER_MS).then(() => {
+      if (t.id === 'gt-caption') ghostHold = 2;   // face shows whole (~80 ms) as the caption flips
+      return glitchSwap(document.getElementById(t.id), toWunsch ? t.wunsch : t.original);
+    })
   ));
   stopMosh();
 }
