@@ -366,38 +366,15 @@ body {
 
 /* ── GLITCH ANIMATIONS ── */
 
-/* Wrapper hides the glitching text cleanly */
-.gt-wrap {
-  display: inline;
-  position: relative;
+/* datamosh layer, positioned over the photo by JS */
+#mosh {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 5;
 }
 
-@keyframes g-out {
-  0%   { opacity: 1;   transform: none;                        clip-path: none;            filter: none; }
-  8%   { opacity: 1;   transform: translateX(-6px);            clip-path: inset(0 0 0 0);  filter: brightness(2); }
-  9%   { opacity: 0;   transform: translateX(8px)  scaleY(1.04); clip-path: inset(30% 0 40% 0); filter: none; }
-  10%  { opacity: 1;   transform: translateX(-4px);            clip-path: inset(60% 0 10% 0); color: #ff0030; }
-  18%  { opacity: 0;   transform: translateX(5px);             clip-path: inset(10% 0 80% 0); }
-  19%  { opacity: 1;   transform: none;                        clip-path: none;            color: #0030ff; }
-  27%  { opacity: 0;   transform: translateX(-8px) scaleX(1.02); clip-path: inset(45% 0 30% 0); filter: brightness(3); }
-  28%  { opacity: 1;   transform: none;                        clip-path: none;            filter: none; color: inherit; }
-  60%  { opacity: 1; }
-  70%  { opacity: 0; }
-  100% { opacity: 0;   transform: none;                        clip-path: none; }
-}
-
-@keyframes g-in {
-  0%   { opacity: 0;   transform: none;                        clip-path: none; }
-  5%   { opacity: 0;   transform: translateX(7px);             clip-path: inset(70% 0 0 0);  color: #ff0030; filter: brightness(2); }
-  6%   { opacity: 1;   transform: translateX(-5px);            clip-path: inset(0 0 70% 0);  filter: none; }
-  14%  { opacity: 0;   transform: translateX(4px)  scaleY(1.03); clip-path: inset(25% 0 55% 0); color: #0030ff; }
-  15%  { opacity: 1;   transform: none;                        clip-path: none;  color: inherit; }
-  22%  { opacity: 0;   transform: translateX(-6px);            clip-path: inset(50% 0 20% 0); filter: brightness(2.5); }
-  23%  { opacity: 1;   transform: none;                        clip-path: none;  filter: none; }
-  100% { opacity: 1;   transform: none;                        clip-path: none;  color: inherit; }
-}
-
-/* idle flicker during Wunsch hold — abrupt, not smooth */
+/* idle flicker during holds — abrupt, not smooth */
 @keyframes idle-flicker {
   0%, 88%, 100% { transform: none; filter: none; opacity: 1; }
   89%  { transform: translateX(4px); filter: brightness(2); opacity: 0; }
@@ -407,17 +384,7 @@ body {
   93%  { transform: none; }
 }
 
-.glitch-text {
-  display: inline;
-}
-
-.glitch-text.g-out {
-  animation: g-out 0.32s steps(1) forwards;
-}
-
-.glitch-text.g-in {
-  animation: g-in 0.26s steps(1) forwards;
-}
+.glitch-text { display: inline; }
 
 .glitch-text.idle {
   animation: idle-flicker 6s steps(1) infinite;
@@ -428,15 +395,11 @@ body {
 </head>
 <body>
 
-<canvas id="glitch-canvas" style="
-  position:fixed; inset:0; width:100%; height:100%;
-  pointer-events:none; z-index:9999; opacity:0;
-"></canvas>
-
 <!-- ═══════════════════════════════════ PHOTO AREA ═══════════════════════════════════ -->
 <div class="photo-area">
   <button class="close-btn">✕</button>
-  <img src="506445355_10059603907416142_3771467240129325286_n.jpg" alt="">
+  <img src="foto.jpg" alt="" id="photo">
+  <canvas id="mosh"></canvas>
 </div>
 
 <!-- ═══════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
@@ -466,7 +429,7 @@ body {
     <div class="post-meta">
       <div class="post-name">Günther A. Nowak</div>
       <div class="post-date">
-        21. Oktober 2013
+        21. Dezember 2013
         <svg width="12" height="12" viewBox="0 0 24 24" fill="#65676b"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
       </div>
     </div>
@@ -474,12 +437,7 @@ body {
   </div>
 
   <!-- Caption -->
-  <div class="caption" id="caption-block"><span
-      class="glitch-text"
-      id="gt-caption"
-      data-original="My daughter &lt;strong&gt;Melissa&lt;/strong&gt;, my son &lt;strong&gt;Damian&lt;/strong&gt; and myself. ❤️"
-      data-wunsch="My daughter &lt;strong&gt;Melissa&lt;/strong&gt;, my son &lt;strong&gt;Damian&lt;/strong&gt; and myself. ❤️"
-      style="--idle-delay:0.3s">My daughter <strong>Melissa</strong>, my son <strong>Damian</strong> and myself. ❤️</span></div>
+  <div class="caption" id="caption-block"><span class="glitch-text" id="gt-caption" style="--idle-delay:0.3s"></span></div>
 
   <!-- Reactions -->
   <div class="reactions-bar">
@@ -518,13 +476,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Max Müller</span>
-          <span class="c-text glitch-text" id="gt-c1"
-            data-original="what a great photo and a beautiful dobi 😉😉"
-            data-wunsch="[WUNSCH 1]"
-            style="--idle-delay:0.8s">what a great photo and a beautiful dobi 😉😉</span>
+          <span class="c-text glitch-text" id="gt-c1" style="--idle-delay:0.8s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -537,13 +492,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Sophie Wagner</span>
-          <span class="c-text glitch-text" id="gt-c2"
-            data-original="Günther et ses deux grands amours!!! 🙂❤️"
-            data-wunsch="[WUNSCH 2]"
-            style="--idle-delay:1.6s">Günther et ses deux grands amours!!! 🙂❤️</span>
+          <span class="c-text glitch-text" id="gt-c2" style="--idle-delay:1.6s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -556,13 +508,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Anna Berger</span>
-          <span class="c-text glitch-text" id="gt-c3"
-            data-original="Fantastic family Gunter ! ❤️"
-            data-wunsch="[WUNSCH 3]"
-            style="--idle-delay:2.4s">Fantastic family Gunter ! ❤️</span>
+          <span class="c-text glitch-text" id="gt-c3" style="--idle-delay:2.4s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 2</div>
         </div>
@@ -575,13 +524,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Thomas Klein</span>
-          <span class="c-text glitch-text" id="gt-c4"
-            data-original="Merry Christmas Gunther"
-            data-wunsch="[WUNSCH 4]"
-            style="--idle-delay:0.5s">Merry Christmas Gunther</span>
+          <span class="c-text glitch-text" id="gt-c4" style="--idle-delay:0.5s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -594,13 +540,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Günther A. Nowak</span>
-          <span class="c-text glitch-text" id="gt-c5"
-            data-original="Merry Christmas <strong>Thomas</strong>"
-            data-wunsch="[WUNSCH 5]"
-            style="--idle-delay:3.1s">Merry Christmas <strong>Thomas</strong></span>
+          <span class="c-text glitch-text" id="gt-c5" style="--idle-delay:3.1s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -613,13 +556,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Maria Huber</span>
-          <span class="c-text glitch-text" id="gt-c6"
-            data-original="MERRY CHRISTMAS !!!!!"
-            data-wunsch="[WUNSCH 6]"
-            style="--idle-delay:1.2s">MERRY CHRISTMAS !!!!!</span>
+          <span class="c-text glitch-text" id="gt-c6" style="--idle-delay:1.2s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -632,13 +572,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Lisa Schneider</span>
-          <span class="c-text glitch-text" id="gt-c7"
-            data-original="May You Be Blessed this CHRISTmas with love beyond measure &amp; Joy Unspeakable Gunther, Melissa &amp; Damian!! ❤️"
-            data-wunsch="[WUNSCH 7]"
-            style="--idle-delay:2.0s">May You Be Blessed this CHRISTmas with love beyond measure &amp; Joy Unspeakable Gunther, Melissa &amp; Damian!! ❤️</span>
+          <span class="c-text glitch-text" id="gt-c7" style="--idle-delay:2.0s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -651,13 +588,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Eva Fischer</span>
-          <span class="c-text glitch-text" id="gt-c8"
-            data-original="Beautiful."
-            data-wunsch="[WUNSCH 8]"
-            style="--idle-delay:3.7s">Beautiful.</span>
+          <span class="c-text glitch-text" id="gt-c8" style="--idle-delay:3.7s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
         </div>
       </div>
@@ -669,13 +603,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Kurt Bauer</span>
-          <span class="c-text glitch-text" id="gt-c9"
-            data-original="A beautiful family picture. Merry Christmas and may God Bless you with a wonderful 2014."
-            data-wunsch="[WUNSCH 9]"
-            style="--idle-delay:0.9s">A beautiful family picture. Merry Christmas and may God Bless you with a wonderful 2014.</span>
+          <span class="c-text glitch-text" id="gt-c9" style="--idle-delay:0.9s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -688,13 +619,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Peter Maier</span>
-          <span class="c-text glitch-text" id="gt-c10"
-            data-original="Beautiful family! Merry Christmas to all of you!... <strong>Mehr anzeigen</strong>"
-            data-wunsch="[WUNSCH 10]"
-            style="--idle-delay:2.8s">Beautiful family! Merry Christmas to all of you!... <strong>Mehr anzeigen</strong></span>
+          <span class="c-text glitch-text" id="gt-c10" style="--idle-delay:2.8s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -707,13 +635,10 @@ body {
       <div class="c-body">
         <div class="c-bubble">
           <span class="c-name">Sandra Wolf</span>
-          <span class="c-text glitch-text" id="gt-c11"
-            data-original="Lovely, you are so handsome and your daughter is gorgeous. Blessing all of you for 2014."
-            data-wunsch="[WUNSCH 11]"
-            style="--idle-delay:1.5s">Lovely, you are so handsome and your daughter is gorgeous. Blessing all of you for 2014.</span>
+          <span class="c-text glitch-text" id="gt-c11" style="--idle-delay:1.5s"></span>
         </div>
         <div class="c-meta">
-          <span class="c-time">12 Jahre</span>
+          <span class="c-time">13 Jahre</span>
           <span class="c-like-btn">Gefällt mir</span>
           <div class="c-likes"><div class="c-like-icon">👍</div> 1</div>
         </div>
@@ -732,86 +657,283 @@ body {
 
 </div><!-- /sidebar -->
 
+<!-- Texte: original + wunsch. Inline statt fetch, damit es auch per file:// läuft. -->
+<script type="application/json" id="texte">
+{
+  "caption": {
+    "original": "My daughter <strong>Melissa</strong>, my son <strong>Damian</strong> and myself. ❤️",
+    "wunsch":   "My daughter <strong>Melissa</strong>, my dog <strong>Damian</strong> and myself. Unfortunately my dear son <strong>Alex</strong> wasn't able to join us today ❤️"
+  },
+  "comments": [
+    {
+      "id":       "gt-c1",
+      "name":     "Max Müller",
+      "original": "what a great photo and a beautiful dobi 😉😉",
+      "wunsch":   "You are blessed with two wonderful children 😉😉"
+    },
+    {
+      "id":       "gt-c2",
+      "name":     "Sophie Wagner",
+      "original": "Günther et ses deux grands amours!!! 🙂 ❤",
+      "wunsch":   "Günther, schade, dass Alex heute nicht dabei sein kann. Richte ihm liebe Grüße aus!🙂❤️"
+    },
+    {
+      "id":       "gt-c3",
+      "name":     "Anna Berger",
+      "original": "Fantastic family Gunter! ❤️",
+      "wunsch":   "Fantastic family Gunter! ❤️ Hope you three are united soon!"
+    },
+    {
+      "id":       "gt-c4",
+      "name":     "Thomas Klein",
+      "original": "Merry Christmas Gunther!",
+      "wunsch":   "Merry Christmas Gunther, Mel and Alex! And merry christmas to your little pup"
+    },
+    {
+      "id":       "gt-c5",
+      "name":     "Günther A. Nowak",
+      "original": "Merry Christmas <strong>Thomas</strong>",
+      "wunsch":   "Merry Christmas <strong>Thomas</strong>"
+    },
+    {
+      "id":       "gt-c6",
+      "name":     "Maria Huber",
+      "original": "MERRY CHRISTMAS !!!!!",
+      "wunsch":   "MERRY CHRISTMAS, Alex !!!!! Whereever you may be right now."
+    },
+    {
+      "id":       "gt-c7",
+      "name":     "Lisa Schneider",
+      "original": "May You Be Blessed this CHRISTmas with love beyond measure & Joy Unspeakable Gunther, Melissa & Damian!! ❤️",
+      "wunsch":   "May You Be Blessed this CHRISTmas with love beyond measure & Joy Unspeakable Gunther, Melissa & Alex!! ❤️"
+    },
+    {
+      "id":       "gt-c8",
+      "name":     "Eva Fischer",
+      "original": "Beautiful.",
+      "wunsch":   "Where is Alex?"
+    },
+    {
+      "id":       "gt-c9",
+      "name":     "Kurt Bauer",
+      "original": "A beautiful family picture. Merry Christmas and may God Bless you with a wonderful 2014.",
+      "wunsch":   "A beautiful family picture. Even if your son is not with you..."
+    },
+    {
+      "id":       "gt-c10",
+      "name":     "Peter Maier",
+      "original": "Beautiful family! Merry Christmas to all of you!",
+      "wunsch":   "Beautiful family! Merry Christmas to all of you! Alex! Hope you join the next family gathering!"
+    },
+    {
+      "id":       "gt-c11",
+      "name":     "Sandra Wolf",
+      "original": "Lovely, you are so handsome and your daughter is gorgeous. Blessing all of you for 2014.",
+      "wunsch":   "Lovely, your daughter is gorgeous and I think I can remember your son is as handsome as you are. "
+    }
+  ]
+}
+</script>
+
 <!-- ═══════════════════════════════════ SCRIPT ════════════════════════════════════════ -->
 <script>
 'use strict';
 
 // ─── TIMING CONFIG ───────────────────────────────────────────────────────────
 const STAGGER_MS  = 550;   // delay between each element's transition
-const GLITCH_MS   = 280;   // duration of one glitch-out or glitch-in pass
+const OUT_MS      = 320;   // old text dissolves into glyphs
+const IN_MS       = 700;   // new text decodes out of glyphs
 const WUNSCH_HOLD = 10000; // ms to stay in Wunsch state
 const ORIG_HOLD   = 10000; // ms to stay in Original state
 
-// ─── PIXEL ARTIFACT CANVAS ───────────────────────────────────────────────────
-const canvas = document.getElementById('glitch-canvas');
-const ctx    = canvas.getContext('2d');
-
-function resizeCanvas() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-function drawPixelNoise(intensity = 1) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const count = Math.floor(60 * intensity);
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    const w = Math.random() * 40 + 2;
-    const h = Math.floor(Math.random() * 4 + 1); // flat horizontal bars
-    const r = Math.random();
-    // mostly white/grey artifacts, occasional color bleed
-    if (r < 0.6) {
-      const v = Math.floor(Math.random() * 255);
-      ctx.fillStyle = `rgb(${v},${v},${v})`;
-    } else if (r < 0.8) {
-      ctx.fillStyle = `rgba(255,0,40,${Math.random() * 0.9 + 0.1})`;
-    } else {
-      ctx.fillStyle = `rgba(0,40,255,${Math.random() * 0.9 + 0.1})`;
-    }
-    ctx.fillRect(x, y, w, h);
-  }
-  // one or two full-width scanline tears
-  if (Math.random() > 0.4) {
-    const y = Math.random() * canvas.height;
-    ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.6 + 0.1})`;
-    ctx.fillRect(0, y, canvas.width, Math.random() * 3 + 1);
-  }
-}
-
-let pixelLoopId = null;
-
-function startPixelNoise(intensity = 1) {
-  canvas.style.opacity = '1';
-  function frame() {
-    drawPixelNoise(intensity);
-    pixelLoopId = requestAnimationFrame(frame);
-  }
-  pixelLoopId = requestAnimationFrame(frame);
-}
-
-function stopPixelNoise() {
-  if (pixelLoopId) { cancelAnimationFrame(pixelLoopId); pixelLoopId = null; }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.style.opacity = '0';
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rand  = (a, b) => a + Math.random() * (b - a);
+const randi = (a, b) => Math.floor(rand(a, b));
+
+// ─── DATAMOSH ON THE PHOTO ───────────────────────────────────────────────────
+// Corrupts the photo like a broken video/JPEG stream: blocks smear, slide,
+// get copied from elsewhere, take on wrong colours. The canvas keeps its
+// previous frame, so damage accumulates until it snaps back.
+// Only drawImage is used (no getImageData), so it works under file:// too.
+const photo = document.getElementById('photo');
+const mosh  = document.getElementById('mosh');
+const mctx  = mosh.getContext('2d');
+const buf   = document.createElement('canvas');   // accumulating datamosh state
+const bctx  = buf.getContext('2d');
+const chan  = document.createElement('canvas');   // scratch for channel isolation
+const cctx  = chan.getContext('2d');
+let moshId  = null;
+
+function placeMosh() {
+  const r = photo.getBoundingClientRect();
+  const p = photo.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  Object.assign(mosh.style, {
+    left: (r.left - p.left) + 'px', top: (r.top - p.top) + 'px',
+    width: r.width + 'px', height: r.height + 'px',
+  });
+  buf.width  = chan.width  = mosh.width  = Math.round(r.width * dpr);
+  buf.height = chan.height = mosh.height = Math.round(r.height * dpr);
+}
+
+function drawClean() {
+  bctx.globalCompositeOperation = 'source-over';
+  bctx.globalAlpha = 1;
+  bctx.drawImage(photo, 0, 0, buf.width, buf.height);
+}
+
+function moshFrame(k) {
+  const W = buf.width, H = buf.height;
+  const B = Math.max(8, Math.round(W / 64));          // macroblock size
+  const sx = photo.naturalWidth / W, sy = photo.naturalHeight / H;
+  const bx = () => randi(0, W / B) * B, by = () => randi(0, H / B) * B;
+
+  if (Math.random() < 0.05 * k) drawClean();           // occasional snap back
+
+  const n = Math.round(rand(1, 5) * k);
+  for (let i = 0; i < n; i++) {
+    const t = Math.random();
+    const x = bx(), y = by();
+    const w = B * randi(1, 6), h = B * randi(1, 4);
+
+    if (t < 0.40) {
+      // smear: drag a block downwards/sideways (classic P-frame bloom)
+      const dx = B * randi(-1, 2), dy = B * randi(0, 2);
+      bctx.drawImage(buf, x, y, w, h, x + dx, y + dy, w, h);
+    } else if (t < 0.65) {
+      // wrong reference: paint a block taken from somewhere nearby in the photo
+      const ox = x + B * randi(-6, 7), oy = y + B * randi(-4, 5);
+      bctx.drawImage(photo, ox * sx, oy * sy, w * sx, h * sy, x, y, w, h);
+    } else if (t < 0.85) {
+      // horizontal slice shift
+      const bh = B * randi(1, 3), dx = randi(-W * 0.06, W * 0.06);
+      bctx.drawImage(buf, 0, y, W, bh, dx, y, W, bh);
+    } else {
+      // chroma error: block takes on a wrong colour
+      bctx.globalCompositeOperation = Math.random() < 0.5 ? 'color' : 'overlay';
+      bctx.globalAlpha = rand(0.35, 0.8);
+      bctx.fillStyle = ['#ff0030', '#00ffd0', '#3040ff', '#ff00c8', '#20ff40'][randi(0, 5)];
+      bctx.fillRect(x, y, w, h);
+      bctx.globalCompositeOperation = 'source-over';
+      bctx.globalAlpha = 1;
+    }
+  }
+}
+
+// Copy one colour channel of the buffer into `chan` (multiply keeps only that channel).
+function isolate(color) {
+  cctx.globalCompositeOperation = 'source-over';
+  cctx.drawImage(buf, 0, 0);
+  cctx.globalCompositeOperation = 'multiply';
+  cctx.fillStyle = color;
+  cctx.fillRect(0, 0, chan.width, chan.height);
+}
+
+// Visible frame: buffer with RGB split and temporary slice tears on top.
+function renderMosh(k) {
+  const W = mosh.width, H = mosh.height;
+  const dpr = window.devicePixelRatio || 1;
+  mctx.globalCompositeOperation = 'source-over';
+
+  if (Math.random() < 0.7) {
+    // RGB split: red channel one way, green+blue the other
+    const d = rand(2, 10) * dpr * k * (Math.random() < 0.5 ? -1 : 1);
+    const dy = Math.random() < 0.2 ? rand(-2, 2) * dpr : 0;
+    mctx.fillStyle = '#000';
+    mctx.fillRect(0, 0, W, H);
+    mctx.globalCompositeOperation = 'lighter';
+    isolate('#ff0000'); mctx.drawImage(chan,  d,  dy);
+    isolate('#00ffff'); mctx.drawImage(chan, -d, -dy);
+    mctx.globalCompositeOperation = 'source-over';
+  } else {
+    mctx.drawImage(buf, 0, 0);
+  }
+
+  // slice tears: thin horizontal bands jump sideways for this frame only
+  const n = randi(0, Math.round(5 * k) + 1);
+  for (let i = 0; i < n; i++) {
+    const y = rand(0, H), h = rand(2, 30) * dpr, dx = rand(-0.1, 0.1) * W;
+    mctx.drawImage(mosh, 0, y, W, h, dx, y, W, h);
+  }
+}
+
+function startMosh(k = 1) {
+  stopMosh();
+  if (!photo.complete || !photo.naturalWidth) return;
+  placeMosh();
+  drawClean();
+  renderMosh(k);
+  mosh.style.opacity = '1';
+  let last = 0;
+  const frame = now => {
+    if (now - last > 40) { moshFrame(k); renderMosh(k); last = now; }  // ~25 fps: choppier = more digital
+    moshId = requestAnimationFrame(frame);
+  };
+  moshId = requestAnimationFrame(frame);
+}
+
+function stopMosh() {
+  if (moshId) { cancelAnimationFrame(moshId); moshId = null; }
+  mosh.style.opacity = '0';
+}
+
+// ─── TEXT DECODE ─────────────────────────────────────────────────────────────
+// Old text dissolves into glyphs, new text resolves out of them left to right.
+// Works on text nodes, so <strong> etc. survive; graphemes keep emoji whole.
+const GLYPHS = '▓▒░█▚▞#%&@$*+=?!<>/\\'.split('');
+const glyph  = () => GLYPHS[randi(0, GLYPHS.length)];
+const seg    = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
+function textParts(elem) {
+  const parts = [];
+  const walk = document.createTreeWalker(elem, NodeFilter.SHOW_TEXT);
+  while (walk.nextNode()) {
+    const node = walk.currentNode;
+    parts.push({ node, g: [...seg.segment(node.data)].map(x => x.segment) });
+  }
+  const total = parts.reduce((a, p) => a + p.g.length, 0) || 1;
+  let idx = 0;
+  parts.forEach(p => {
+    p.th = p.g.map(() => (idx++ / total) * 0.7 + Math.random() * 0.3);
+  });
+  return parts;
+}
+
+function animateText(elem, ms, mode) {
+  const parts = textParts(elem);
+  return new Promise(resolve => {
+    const t0 = performance.now();
+    const frame = now => {
+      const f = Math.min(1, (now - t0) / ms);
+      parts.forEach(p => {
+        p.node.data = p.g.map((ch, i) => {
+          if (/^\s+$/.test(ch)) return ch;
+          const shown = mode === 'in' ? p.th[i] < f : Math.random() > f;
+          return shown ? ch : glyph();
+        }).join('');
+      });
+      const d = (rand(0.5, 3) * (1 - f * 0.6)).toFixed(1);
+      elem.style.textShadow = `${-d}px 0 rgba(255,0,48,.75), ${d}px 0 rgba(0,220,255,.75)`;
+      if (f < 1) requestAnimationFrame(frame);
+      else {
+        if (mode === 'in') {
+          parts.forEach(p => { p.node.data = p.g.join(''); });
+          elem.style.textShadow = '';
+        }
+        resolve();
+      }
+    };
+    requestAnimationFrame(frame);
+  });
+}
 
 async function glitchSwap(elem, newHTML) {
-  elem.classList.remove('g-in', 'idle');
-  elem.classList.add('g-out');
-  await sleep(GLITCH_MS);
+  await animateText(elem, OUT_MS, 'out');
   elem.innerHTML = newHTML;
-  elem.classList.remove('g-out');
-  elem.classList.add('g-in');
-  await sleep(GLITCH_MS);
-  elem.classList.remove('g-in');
+  await animateText(elem, IN_MS, 'in');
 }
 
+// ─── TRANSITIONS ─────────────────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -821,72 +943,59 @@ function shuffle(arr) {
   return a;
 }
 
-async function transitionAll(ids, toWunsch) {
-  const order = shuffle(ids);
-  const totalMs = (order.length - 1) * STAGGER_MS + GLITCH_MS * 2;
+// Comments flip in random order; the caption always flips last.
+async function transitionAll(texts, toWunsch) {
+  const order = [...shuffle(texts.filter(t => t.id !== 'gt-caption')),
+                 texts.find(t => t.id === 'gt-caption')];
 
-  startPixelNoise(1);
-  const promises = order.map((id, i) =>
-    sleep(i * STAGGER_MS).then(() => {
-      const e = document.getElementById(id);
-      return glitchSwap(e, toWunsch ? e.dataset.wunsch : e.dataset.original);
-    })
-  );
-  await Promise.all(promises);
-  stopPixelNoise();
+  startMosh(1);
+  await Promise.all(order.map((t, i) =>
+    sleep(i * STAGGER_MS).then(() =>
+      glitchSwap(document.getElementById(t.id), toWunsch ? t.wunsch : t.original))
+  ));
+  stopMosh();
 }
 
-function setIdle(ids, on) {
-  ids.forEach(id => {
-    document.getElementById(id).classList.toggle('idle', on);
-  });
+function setIdle(texts, on) {
+  texts.forEach(t => document.getElementById(t.id).classList.toggle('idle', on));
 }
 
-// ─── INIT: load texte.json, wire up data attributes and initial content ───────
+// Hold the current state for `ms`, with short mosh bursts at fresh random gaps.
+// Sequential, so a burst can never overlap a transition.
+async function holdWithBursts(ms) {
+  const end = performance.now() + ms;
+  while (true) {
+    const gap = rand(2200, 4200);
+    if (performance.now() + gap >= end) {
+      await sleep(Math.max(0, end - performance.now()));
+      return;
+    }
+    await sleep(gap);
+    startMosh(0.4);
+    await sleep(rand(100, 220));
+    stopMosh();
+  }
+}
+
+// ─── INIT: read inline texts, fill initial content, run loop ─────────────────
 async function init() {
-  const data = await fetch('texte.json').then(r => r.json());
+  const data  = JSON.parse(document.getElementById('texte').textContent);
+  const texts = [{ id: 'gt-caption', ...data.caption }, ...data.comments]
+    .filter(t => document.getElementById(t.id));
 
-  // Caption
-  const capEl = document.getElementById('gt-caption');
-  capEl.dataset.original = data.caption.original;
-  capEl.dataset.wunsch   = data.caption.wunsch;
-  capEl.innerHTML        = data.caption.original;
-
-  // Comments
-  data.comments.forEach(c => {
-    const e = document.getElementById(c.id);
-    if (!e) return;
-    e.dataset.original = c.original;
-    e.dataset.wunsch   = c.wunsch;
-    e.innerHTML        = c.original;
-  });
-
-  const ids = ['gt-caption', ...data.comments.map(c => c.id)];
+  texts.forEach(t => { document.getElementById(t.id).innerHTML = t.original; });
 
   // ─── MAIN LOOP ──────────────────────────────────────────────────────────────
   while (true) {
-    setIdle(ids, true);
-    const origBurst = setInterval(async () => {
-      startPixelNoise(0.3);
-      await sleep(80);
-      stopPixelNoise();
-    }, 2200 + Math.random() * 2000);
-    await sleep(ORIG_HOLD);
-    clearInterval(origBurst);
-    setIdle(ids, false);
+    setIdle(texts, true);
+    await holdWithBursts(ORIG_HOLD);
+    setIdle(texts, false);
+    await transitionAll(texts, true);
 
-    await transitionAll(ids, true);
-    setIdle(ids, true);
-    // occasional pixel bursts during Wunsch hold
-    const burstInterval = setInterval(async () => {
-      startPixelNoise(0.3);
-      await sleep(80);
-      stopPixelNoise();
-    }, 2200 + Math.random() * 2000);
-    await sleep(WUNSCH_HOLD);
-    clearInterval(burstInterval);
-    setIdle(ids, false);
-    await transitionAll(ids, false);
+    setIdle(texts, true);
+    await holdWithBursts(WUNSCH_HOLD);
+    setIdle(texts, false);
+    await transitionAll(texts, false);
   }
 }
 
